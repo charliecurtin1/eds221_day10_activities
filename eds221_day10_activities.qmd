@@ -1,0 +1,54 @@
+---
+title: "Day 9 activities"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+library(here)
+```
+
+read in the data
+
+```{r}
+meteorological_data <- read_csv("ntl20_v6.csv")
+
+ice_cover <- read_csv("ntl33_v7.csv", na = "-999")
+```
+
+create a visualization that compares ice duration across different lakes in the Madison Lake Area
+
+```{r}
+ice_cover_sum <- ice_cover %>%
+  group_by(lakeid) %>% 
+  summarize(mean_duration = mean(ice_duration, na.rm = TRUE))
+
+ice_cover2 <- full_join(ice_cover, ice_cover_sum, by = "lakeid")
+
+ice_cover2 %>% 
+ggplot(aes(x = lakeid, y = ice_duration)) +
+  geom_jitter(position = position_jitter(width = .1),
+              aes(color = year4),
+              alpha = .8)
+```
+
+find the mean ice duration by year
+
+```{r}
+# you're finding the mean of ice duration for each year across all of the lakes
+ice_cover_sum2 <- ice_cover %>% 
+  group_by(year4) %>% 
+  summarize(mean_by_year = mean(ice_duration, na.rm = TRUE))
+```
+
+create an exploratory visualization of mean ice cover duration by year for the Madison lake area
+
+```{r}
+#| fig-cap: graph showing the mean ice duration between lakes in the madison for the year 1900-1950
+ice_cover_sum2 %>% 
+  filter(year4 %in% c(1900:1950)) %>% 
+  ggplot(aes(x = year4, y = mean_by_year)) +
+  geom_line(color = "purple") +
+  geom_point(color = "green")
+```
